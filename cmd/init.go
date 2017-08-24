@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"github.com/matteojoliveau/quicken/utils"
 	"github.com/matteojoliveau/oiko/core/structures"
+	"path/filepath"
 )
 
 func init() {
@@ -50,35 +51,60 @@ var initCmd = &cobra.Command{
 				fmt.Println("Created 'Oikofile'. Use 'oiko help' to list all available commands.")
 			}
 		}
+		curr, absErr := filepath.Abs("./")
+		if absErr != nil {
+			log.Fatal(absErr)
+		} else {
+			mkdirErr := os.MkdirAll(curr+"/src/main/"+of.Namespace, os.ModePerm)
+			if mkdirErr != nil {
+				log.Fatal(absErr)
+			}
+		}
 	},
 }
 
 func prompt() structures.Oikofile {
 	in := bufio.NewReader(os.Stdin)
 	var nl string
+	var goexe string
 	if runtime.GOOS == "windows" {
 		nl = "\r\n"
+		goexe = ".exe"
 	} else {
 		nl = "\n"
+		goexe = ""
 	}
 	fmt.Print("Project Name: ")
 	pName, _ := in.ReadString('\n')
 	pName = strings.Replace(pName, nl, "", -1)
-	fmt.Print("Project Namespace (eg: github.com/matteojoliveau/oiko: ")
-	nspace, _ := in.ReadString('\n')
-	nspace = strings.Replace(nspace, nl, "", -1)
 	fmt.Print("Starting Version: ")
 	version, _ := in.ReadString('\n')
 	version = strings.Replace(version, nl, "", -1)
 	fmt.Print("Your Name: ")
 	oName, _ := in.ReadString('\n')
 	oName = strings.Replace(oName, nl, "", -1)
+	oNameTrimmed := simplifyString(oName)
+	pNameTrimmed := simplifyString(pName)
+	defNspace := fmt.Sprintf("github.com/%s/%s", oNameTrimmed, pNameTrimmed)
+	fmt.Printf("Project Namespace (default: %s): ", defNspace)
+	nspace, _ := in.ReadString('\n')
+	nspace = strings.Replace(nspace, nl, "", -1)
+	if nspace == "" {
+		nspace = defNspace
+	}
+
 	fmt.Print("Your Email: ")
 	email, _ := in.ReadString('\n')
 	email = strings.Replace(email, nl, "", -1)
 	fmt.Print("License: ")
 	license, _ := in.ReadString('\n')
 	license = strings.Replace(license, nl, "", -1)
+	fmt.Printf("Executable Name: (default: %s)", pNameTrimmed)
+	exe, _ := in.ReadString('\n')
+	exe = strings.Replace(exe, nl, "", -1)
+	if exe == "" {
+		exe = pNameTrimmed + goexe
+	}
 
 	info := structures.Oikofile{
 		ProjectName: pName,
@@ -87,7 +113,14 @@ func prompt() structures.Oikofile {
 		Owner:       oName,
 		Email:       email,
 		License:     license,
+		Exe:         exe,
 	}
 
 	return info
+}
+
+func simplifyString(s string) string {
+	s = strings.Replace(s, " ", "", -1)
+	s = strings.ToLower(s)
+	return s
 }

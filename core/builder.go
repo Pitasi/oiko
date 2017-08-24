@@ -8,18 +8,27 @@ import (
 	"strings"
 	"path/filepath"
 	"fmt"
+	"os/exec"
 )
 
-var newGopath = "build/go"
-var buildDir = newGopath + "src/"
+var buildDir = "build/go"
+var srcDir = "src/"
+var newGopath = srcDir
 
 type Builder struct {
 }
 
 func (b *Builder) Build(oikofile structures.Oikofile) error{
-	prepErr := b.prepareEnvironment(oikofile.Namespace)
+	ns := oikofile.Namespace
+	exe := oikofile.Exe
+	prepErr := b.prepareEnvironment(ns)
 	if prepErr != nil {
 		return prepErr
+	}
+
+	compErr := b.compile(ns, exe)
+	if compErr != nil {
+		return compErr
 	}
 
 	return nil
@@ -31,7 +40,7 @@ func (b *Builder) prepareEnvironment(namespace string) error {
 		return exErr
 	} else {
 		if !existent {
-			os.MkdirAll(buildDir+namespace, os.ModePerm)
+			os.MkdirAll(buildDir, os.ModePerm)
 		}
 	}
 
@@ -50,12 +59,25 @@ func (b *Builder) prepareEnvironment(namespace string) error {
 		}
 	}
 	if !alreadySet {
-		os.Setenv("GOPATH", fmt.Sprintf("%s%s%s", gopath, os.PathListSeparator, ng))
+		os.Setenv("GOPATH", fmt.Sprintf("%s%s%s", gopath, string(os.PathListSeparator), ng))
 	}
 
 	return nil
 }
 
+func (b *Builder) compile(namespace string, exe string) error {
+	srcPath := fmt.Sprintf("%s%s", srcDir, namespace)
+	fmt.Printf("Comipiling sources from %s\n", srcPath)
+	exePath := fmt.Sprintf("%s/%s", buildDir, exe)
+	fmt.Println(exePath)
+	cmd := exec.Command("go", "build", namespace, "-o", exePath)
+	out, err := cmd.CombinedOutput()
+	fmt.Println(string(out))
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 
 func NewBuilder() Builder {
