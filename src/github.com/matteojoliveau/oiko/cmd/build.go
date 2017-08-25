@@ -6,7 +6,7 @@ import (
 	"github.com/matteojoliveau/oiko/core/structures"
 	"os"
 	"github.com/matteojoliveau/oiko/core/config"
-	"fmt"
+	"runtime"
 )
 
 var log = config.Logger
@@ -21,9 +21,9 @@ var buildCmd = &cobra.Command{
 	Short: "Build the project",
 	Long:  `Build the project. It will compile all the sources from 'src/' and put the output in 'build/'`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(IsDebug)
 
 		file := structures.ReadOikoFile()
+		setExeExtension(&file.Exe)
 		builder := core.NewBuilder()
 		buildErr := builder.Build(file)
 		if buildErr != nil {
@@ -31,4 +31,13 @@ var buildCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func setExeExtension(exe *string) {
+
+	goexe := ""
+	if runtime.GOOS == "windows" {
+		goexe = ".exe"
+	}
+	*exe += goexe
 }
