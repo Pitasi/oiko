@@ -8,15 +8,16 @@ import (
 	"strings"
 	"runtime"
 	"gopkg.in/yaml.v2"
-	"log"
 	"io/ioutil"
 	"github.com/matteojoliveau/quicken/utils"
 	"github.com/matteojoliveau/oiko/core/structures"
 	"path/filepath"
+	"github.com/matteojoliveau/oiko/core/config"
 )
 
 func init() {
 	RootCmd.AddCommand(initCmd)
+	config.InitLogger(IsDebug)
 }
 
 var initCmd = &cobra.Command{
@@ -26,7 +27,7 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		existent, exErr := utils.IsFileExistent("Oikofile")
 		if exErr != nil {
-			log.Fatal(exErr)
+			log.Error(exErr)
 			os.Exit(1)
 		}
 
@@ -41,11 +42,11 @@ var initCmd = &cobra.Command{
 
 		out, err := yaml.Marshal(of)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		} else {
 			fileErr := ioutil.WriteFile("Oikofile", out, 644)
 			if fileErr != nil {
-				log.Fatal(fileErr)
+				log.Error(fileErr)
 			} else {
 				fmt.Println()
 				fmt.Println("Created 'Oikofile'. Use 'oiko help' to list all available commands.")
@@ -53,11 +54,17 @@ var initCmd = &cobra.Command{
 		}
 		curr, absErr := filepath.Abs("./")
 		if absErr != nil {
-			log.Fatal(absErr)
+			log.Error(absErr)
 		} else {
-			mkdirErr := os.MkdirAll(curr+"/src/main/"+of.Namespace, os.ModePerm)
+			pkgDir := curr + "/src/" + of.Namespace
+			mkdirErr := os.MkdirAll(pkgDir, os.ModePerm)
 			if mkdirErr != nil {
-				log.Fatal(absErr)
+				log.Error(absErr)
+			}
+
+			cErr := createMain(pkgDir)
+			if cErr != nil {
+				log.Error(cErr)
 			}
 		}
 	},
@@ -99,11 +106,14 @@ func prompt() structures.Oikofile {
 	fmt.Print("License: ")
 	license, _ := in.ReadString('\n')
 	license = strings.Replace(license, nl, "", -1)
-	fmt.Printf("Executable Name: (default: %s)", pNameTrimmed)
+	fmt.Printf("Executable Name (default: %s): ", pNameTrimmed)
 	exe, _ := in.ReadString('\n')
 	exe = strings.Replace(exe, nl, "", -1)
 	if exe == "" {
 		exe = pNameTrimmed + goexe
+	}
+	if !strings.HasSuffix(exe, goexe) {
+		exe = exe + goexe
 	}
 
 	info := structures.Oikofile{
@@ -123,4 +133,22 @@ func simplifyString(s string) string {
 	s = strings.Replace(s, " ", "", -1)
 	s = strings.ToLower(s)
 	return s
+}
+
+func createMain(pkgDir string) error {
+	file, cErr := os.Create(pkgDir + "/" + "main.go")
+	if cErr != nil {
+		return cErr
+	}
+
+	_, fErr := file.WriteString(`package main
+
+func main() {
+	//Your Code Here
+}
+`)
+	if fErr != nil {
+		return fErr
+	}
+	return nil
 }

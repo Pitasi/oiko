@@ -2,10 +2,12 @@ package structures
 
 import (
 	"path/filepath"
-	"log"
 	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"github.com/matteojoliveau/oiko/core/config"
 )
+
+var log = config.Logger
 
 type Oikofile struct {
 	ProjectName string `yaml:"project_name"`
@@ -27,18 +29,18 @@ func ReadOikoFile() Oikofile {
 	if !filepath.IsAbs(oikoPath) {
 		abs, err := filepath.Abs(oikoPath)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 		oikoPath = abs
 	}
 	data, ioerr := ioutil.ReadFile(oikoPath)
 	if ioerr != nil {
-		log.Fatal(ioerr)
+		log.Error(ioerr)
 	}
 	of := Oikofile{}
 	err := yaml.Unmarshal([]byte(data), &of)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Errorf("error: %v", err)
 	}
 	return of
 }

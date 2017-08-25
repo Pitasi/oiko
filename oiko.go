@@ -1,14 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"github.com/matteojoliveau/oiko/cmd"
+	"os"
+
+	"github.com/matteojoliveau/oiko/core/config"
 )
+
+var log = config.Logger
 
 func main() {
 	if err := cmd.RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Error(err)
 		os.Exit(1)
 	}
 }

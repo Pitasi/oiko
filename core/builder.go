@@ -2,23 +2,26 @@ package core
 
 import (
 	"github.com/matteojoliveau/oiko/util"
-	"os"
 	"github.com/matteojoliveau/oiko/core/structures"
+	"os"
 	"go/build"
 	"strings"
 	"path/filepath"
 	"fmt"
 	"os/exec"
+	"time"
+	"github.com/matteojoliveau/oiko/core/config"
 )
-
-var buildDir = "build/go"
+var log = config.Logger
+var buildDir = "build/"
 var srcDir = "src/"
-var newGopath = srcDir
+var newGopath = "."
 
 type Builder struct {
 }
 
-func (b *Builder) Build(oikofile structures.Oikofile) error{
+func (b *Builder) Build(oikofile structures.Oikofile) error {
+	log.Debug("Test")
 	ns := oikofile.Namespace
 	exe := oikofile.Exe
 	prepErr := b.prepareEnvironment(ns)
@@ -41,13 +44,15 @@ func (b *Builder) prepareEnvironment(namespace string) error {
 	} else {
 		if !existent {
 			os.MkdirAll(buildDir, os.ModePerm)
+			log.Debug("Created", buildDir)
 		}
 	}
 
 	gopath := build.Default.GOPATH
+
 	paths := strings.Split(gopath, string(os.PathListSeparator))
 	ng, absErr := filepath.Abs(newGopath)
-	if absErr != nil{
+	if absErr != nil {
 		return absErr
 	}
 
@@ -59,26 +64,31 @@ func (b *Builder) prepareEnvironment(namespace string) error {
 		}
 	}
 	if !alreadySet {
-		os.Setenv("GOPATH", fmt.Sprintf("%s%s%s", gopath, string(os.PathListSeparator), ng))
+		p := fmt.Sprintf("%s%s%s", gopath, string(os.PathListSeparator), ng)
+
+		os.Setenv("GOPATH", p)
+		log.Debug("Updated GOPATH with ", ng)
+		log.Debug("New GOPATH: ", p)
 	}
 
 	return nil
 }
 
 func (b *Builder) compile(namespace string, exe string) error {
+	t0 := time.Now()
 	srcPath := fmt.Sprintf("%s%s", srcDir, namespace)
-	fmt.Printf("Comipiling sources from %s\n", srcPath)
+	log.Info("Compiling sources from ", srcPath)
 	exePath := fmt.Sprintf("%s/%s", buildDir, exe)
-	fmt.Println(exePath)
-	cmd := exec.Command("go", "build", namespace, "-o", exePath)
+	cmd := exec.Command("go", "build", "-o", exePath, namespace)
 	out, err := cmd.CombinedOutput()
-	fmt.Println(string(out))
+	log.Debug(string(out))
 	if err != nil {
 		return err
 	}
+	log.WithField("compilation_time", time.Since(t0)).Infof("Built '%s' in %s", exe, buildDir)
+
 	return nil
 }
-
 
 func NewBuilder() Builder {
 	b := Builder{}
