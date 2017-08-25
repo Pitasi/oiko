@@ -1,4 +1,4 @@
-package main
+package src
 
 import (
 	"github.com/matteojoliveau/oiko/cmd"
