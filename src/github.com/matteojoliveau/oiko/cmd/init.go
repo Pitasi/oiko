@@ -72,14 +72,9 @@ var initCmd = &cobra.Command{
 
 func prompt() structures.Oikofile {
 	in := bufio.NewReader(os.Stdin)
-	var nl string
-	var goexe string
+	nl := "\n"
 	if runtime.GOOS == "windows" {
 		nl = "\r\n"
-		goexe = ".exe"
-	} else {
-		nl = "\n"
-		goexe = ""
 	}
 	fmt.Print("Project Name: ")
 	pName, _ := in.ReadString('\n')
@@ -110,10 +105,7 @@ func prompt() structures.Oikofile {
 	exe, _ := in.ReadString('\n')
 	exe = strings.Replace(exe, nl, "", -1)
 	if exe == "" {
-		exe = pNameTrimmed + goexe
-	}
-	if !strings.HasSuffix(exe, goexe) {
-		exe = exe + goexe
+		exe = pNameTrimmed
 	}
 
 	info := structures.Oikofile{

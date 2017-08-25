@@ -21,7 +21,6 @@ type Builder struct {
 }
 
 func (b *Builder) Build(oikofile structures.Oikofile) error {
-	log.Debug("Test")
 	ns := oikofile.Namespace
 	exe := oikofile.Exe
 	prepErr := b.prepareEnvironment(ns)

@@ -1,6 +1,6 @@
 project_name: Oiko
 namespace: github.com/matteojoliveau/oiko
-version: 0.1.0
+version: 0.1.1
 owner: Matteo Joliveau
 email: matteojoliveau@gmail.com
 license: apache2
