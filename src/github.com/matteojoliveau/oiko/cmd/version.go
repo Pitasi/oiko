@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const ver string = "0.1.0"
+const ver string = "0.1.1"
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
