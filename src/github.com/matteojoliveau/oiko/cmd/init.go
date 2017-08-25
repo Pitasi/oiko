@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"github.com/matteojoliveau/quicken/utils"
+	"github.com/matteojoliveau/oiko/util"
 	"github.com/matteojoliveau/oiko/core/structures"
 	"path/filepath"
 	"github.com/matteojoliveau/oiko/core/config"
@@ -25,7 +25,7 @@ var initCmd = &cobra.Command{
 	Short: "Initialize a new project",
 	Long:  `Initialize a new project. The command will prompt for some informations like name, namespace, license and starting version.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		existent, exErr := utils.IsFileExistent("Oikofile")
+		existent, exErr := util.IsFileExistent("Oikofile")
 		if exErr != nil {
 			log.Error(exErr)
 			os.Exit(1)
