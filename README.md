@@ -1,5 +1,4 @@
 # Oiko
-[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/MatteoJoliveau/oiko/releases/latest)
 ## A simple and powerful build tool for Golang
 
 Oiko (from the Greek word *oikodómos*, "the builder") is a simple
