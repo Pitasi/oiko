@@ -81,7 +81,7 @@ func (b *Builder) compile(namespace string, exe string) error {
 	exePath := fmt.Sprintf("%s/%s", buildDir, exe)
 	cmd := exec.Command("go", "build", "-o", exePath, namespace)
 	out, err := cmd.CombinedOutput()
-	log.Debug(string(out))
+	log.Info(string(out))
 	if err != nil {
 		return err
 	}
