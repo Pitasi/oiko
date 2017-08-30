@@ -34,7 +34,7 @@ GOPATH so that it can be built and linked to pre-existent projects or dependenci
 `oiko build`
 
 #### Install packages and executables inside standard GOPATH:
-`oiko install` ***NOT YET IMPLEMENTED***
+`oiko install`
 
 #### Download missing dependencies:
 `oiko update` or `oiko update` ***NOT YET IMPLEMENTED***
@@ -116,18 +116,14 @@ The fields used by Oiko to describe and build your projects are:
 ### Available
  - **Project generation**: `oiko init`
  - **Build executables**: `oiko build`
-### Missing
  - **Project installation**: `oiko install`
+### Missing
  - **Dependency management**: `oiko update`
  - **Cleaning**: `oiko clean`
 
 ## How to build
-
-- Git clone this repository in a folder of your choice (better if outside
-the standard GOPATH, to avoid problems).
-- Run `oiko build`
-- Copy `build/oiko` (or `build\oiko.exe` if on Windows) to your PATH,
-so that the `oiko` command is accessible from anywhere
-
-In future releases you will be able to simply run `oiko install` to have
-it available in PATH.
+Fetch the project: `go get github.com/matteojoliveau/oiko`
+`cd` into the project directory (probably *GOPATH/src/github.com/matteojoliveau/oiko*)
+Install dependencies: `go get ./...`
+Install: `go install`
+Check the installation is working by running `oiko help`
