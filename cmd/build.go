@@ -4,12 +4,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/matteojoliveau/oiko/core"
 	"github.com/matteojoliveau/oiko/core/structures"
-	"os"
 	"github.com/matteojoliveau/oiko/core/config"
-	"runtime"
 )
 
-var log = config.Logger
+
 
 func init() {
 	RootCmd.AddCommand(buildCmd)
@@ -23,21 +21,9 @@ var buildCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		file := structures.ReadOikoFile()
-		setExeExtension(&file.Exe)
-		builder := core.NewBuilder()
-		buildErr := builder.Build(file)
-		if buildErr != nil {
-			log.Error(buildErr)
-			os.Exit(1)
-		}
+		core.SetExeExtension(&file.Exe)
+		buildErr := core.Build(file)
+		core.Check(buildErr)
 	},
 }
 
-func setExeExtension(exe *string) {
-
-	goexe := ""
-	if runtime.GOOS == "windows" {
-		goexe = ".exe"
-	}
-	*exe += goexe
-}
